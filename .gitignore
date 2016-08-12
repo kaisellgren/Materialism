@@ -1,0 +1,15 @@
+*.class
+*.war
+*.ear
+hs_err_pid*
+.gradle
+gradle-app.setting
+gradlew
+gradlew.bat
+gradle/
+build/
+.DS_Store
+Thumbs.db
+out/
+.idea/
+Materialism.iml
