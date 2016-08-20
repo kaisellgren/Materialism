@@ -2,6 +2,7 @@ package materialism
 
 import org.lwjgl.BufferUtils.createIntBuffer
 import org.lwjgl.opengl.GL11.*
+import org.lwjgl.opengl.GL12.GL_TEXTURE_MAX_LEVEL
 import org.lwjgl.stb.STBImage.stbi_failure_reason
 import org.lwjgl.stb.STBImage.stbi_load
 
@@ -22,6 +23,8 @@ class Texture(val path: String) {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT)
         assertNoError()
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT)
+        assertNoError()
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 8)
         assertNoError()
 
         val w = createIntBuffer(1)

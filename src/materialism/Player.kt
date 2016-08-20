@@ -6,7 +6,7 @@ import org.joml.Vector3f
 import org.lwjgl.glfw.GLFW.*
 
 class Player {
-    val position = Vector3f(0f, 50f, 0f)
+    val position = Vector3f(20f, 50f, 20f)
     val rotation = Vector3f(0f, 0f, 0f) // In degrees. Pitch, yaw, roll. Roll isn't used.
 
     val size = Vector3f(BASE_SIZE, LARGE_SIZE, BASE_SIZE)
@@ -49,7 +49,7 @@ class Player {
 
         if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS) {
             val terrainBelow = getBlockBelow(terrain)
-            if (terrainBelow != null) {
+            if (terrainBelow != null || true) {
                 velocity.y = 20f * dt
             }
         }
