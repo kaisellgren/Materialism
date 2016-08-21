@@ -28,6 +28,18 @@ class Materialism {
     //var font: Font? = null
     var dirt: Texture? = null
 
+    val att = Attenuation(constant = 1f, exponent = 0f, linear = 0f)
+    val pointLightColor = Vector3f(255 / 255f, 246 / 255f, 216 / 255f)
+    val tmpPointLightPosM = Vector4f()
+    val pointLightPos = Vector3f(20f, 50f, 20f)
+    val tmpPointLightPos = Vector3f()
+    val pointLight = PointLight(
+        color = pointLightColor,
+        position = pointLightPos,
+        att = att,
+        intensity = dayNightCycle.intensity
+    )
+
     init {
         try {
             window = initializeOpenGL()
@@ -50,18 +62,22 @@ class Materialism {
 
         val mesh = Mesh(VertexBuilder.cube(0f, 0f, 0f, BASE_SIZE, BASE_SIZE, BASE_SIZE))
 
-        for (x in 0..20) {
+        var totalBlocks = 0
+        for (x in 0..40) {
             for (y in 0..10) {
-                for (z in 0..20) {
+                for (z in 0..40) {
                     val value = noise.eval(x.toDouble() / 4, y.toDouble() / 1, z.toDouble() / 4)
                     if (value > 0) {
                         val model = Model(mesh)
                         model.position.set(x.toFloat() * BASE_SIZE, y.toFloat() * BASE_SIZE, z.toFloat() * BASE_SIZE)
                         terrain.add(model)
+
+                        totalBlocks++
                     }
                 }
             }
         }
+        println("Total blocks: $totalBlocks")
 
         val voxelVS = loadShader(GL_VERTEX_SHADER, "shaders/voxel.vs")
         val voxelFS = loadShader(GL_FRAGMENT_SHADER, "shaders/voxel.fs")
@@ -150,7 +166,7 @@ class Materialism {
         fpsTimeout++
         if (fpsTimeout > 30) {
             fpsTimeout = 0
-            println("FPS: ${timer.getFPS()}")
+            println("FPS: ${timer.getFPS()}, UPS: ${timer.getUPS()}")
         }
         timer.updateFPS()
 
@@ -167,19 +183,16 @@ class Materialism {
         for (model in terrain) {
             val modelViewMatrix = transformation.getModelViewMatrix(model, viewMatrix)
 
-            val p = Vector3f(20f, 50f, 20f)
-            val pos = Vector4f(p, 1f)
+            val pos = tmpPointLightPosM.set(pointLightPos.x, pointLightPos.y, pointLightPos.z, 1f)
             pos.mul(modelViewMatrix)
-            p.x = pos.x
-            p.y = pos.y
-            p.z = pos.z
-            shaderProgram.setUniform("pointLight", PointLight(
-                color = Vector3f(255/255f, 246/255f, 216/255f),
-                position = p,
-                att = Attenuation(constant = 1f, exponent = 0f, linear = 0f),
-                intensity = dayNightCycle.intensity
-            ))
+            tmpPointLightPos.x = pos.x
+            tmpPointLightPos.y = pos.y
+            tmpPointLightPos.z = pos.z
 
+            pointLight.intensity = dayNightCycle.intensity
+            pointLight.position = tmpPointLightPos
+
+            shaderProgram.setUniform("pointLight", pointLight)
             shaderProgram.setUniform("modelViewMatrix", modelViewMatrix)
 
             model.mesh.render()

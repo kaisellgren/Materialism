@@ -4,6 +4,7 @@ import materialism.BlockSize.BASE_SIZE
 import materialism.BlockSize.LARGE_SIZE
 import org.joml.Vector3f
 import org.lwjgl.glfw.GLFW.*
+import java.lang.Math.*
 
 class Player {
     val position = Vector3f(20f, 50f, 20f)
@@ -28,23 +29,23 @@ class Player {
 
     fun updateMovement(dt: Float, window: Long, terrain: List<Model>) {
         if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-            position.x += Math.sin(Math.toRadians(rotation.y.toDouble())).toFloat() * movementSpeed * dt
-            position.z -= Math.cos(Math.toRadians(rotation.y.toDouble())).toFloat() * movementSpeed * dt
+            position.x += sin(toRadians(rotation.y.toDouble())).toFloat() * movementSpeed * dt
+            position.z -= cos(toRadians(rotation.y.toDouble())).toFloat() * movementSpeed * dt
         }
 
         if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-            position.x -= Math.sin(Math.toRadians(rotation.y.toDouble())).toFloat() * movementSpeed * dt * 0.5f
-            position.z += Math.cos(Math.toRadians(rotation.y.toDouble())).toFloat() * movementSpeed * dt * 0.5f
+            position.x -= sin(toRadians(rotation.y.toDouble())).toFloat() * movementSpeed * dt * 0.5f
+            position.z += cos(toRadians(rotation.y.toDouble())).toFloat() * movementSpeed * dt * 0.5f
         }
 
         if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-            position.x += Math.sin(Math.toRadians(rotation.y.toDouble() - 90)).toFloat() * movementSpeed * dt
-            position.z -= Math.cos(Math.toRadians(rotation.y.toDouble() - 90)).toFloat() * movementSpeed * dt
+            position.x += sin(toRadians(rotation.y.toDouble() - 90)).toFloat() * movementSpeed * dt
+            position.z -= cos(toRadians(rotation.y.toDouble() - 90)).toFloat() * movementSpeed * dt
         }
 
         if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-            position.x += Math.sin(Math.toRadians(rotation.y.toDouble() + 90)).toFloat() * movementSpeed * dt
-            position.z -= Math.cos(Math.toRadians(rotation.y.toDouble() + 90)).toFloat() * movementSpeed * dt
+            position.x += sin(toRadians(rotation.y.toDouble() + 90)).toFloat() * movementSpeed * dt
+            position.z -= cos(toRadians(rotation.y.toDouble() + 90)).toFloat() * movementSpeed * dt
         }
 
         if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS) {
@@ -62,7 +63,7 @@ class Player {
             velocity.y = 0f
             position.y = terrainBelow.position.y + terrainBelow.size.y
         } else {
-            velocity.y -= Math.pow(weight.toDouble(), velocity.y.toDouble()).toFloat() * dt
+            velocity.y -= pow(weight.toDouble(), velocity.y.toDouble()).toFloat() * dt
             if (velocity.y < -2f) {
                 velocity.y = -2f
             }

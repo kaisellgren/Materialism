@@ -18,6 +18,9 @@ class DayNightCycle {
     val dayColor = Vector3f(255/255f, 246/255f, 216/255f)
     val nightColor = Vector3f(0/255f, 60/255f, 108/255f)
 
+    val dayColorVec = Vector3f()
+    val nightColorVec = Vector3f()
+
     fun update(dt: Float) {
         currentTime = (currentTime + cycleSpeed * dt).toInt() % maxTime
 
@@ -36,7 +39,7 @@ class DayNightCycle {
             0f
         }
 
-        currentColor.set(Vector3f(dayColor).mul(dayScale).add(Vector3f(nightColor).mul(nightScale)))
+        currentColor.set(dayColorVec.set(dayColor).mul(dayScale).add(nightColorVec.set(nightColor).mul(nightScale)))
         intensity = max(dayScale, 0.2f)
 
         // TODO: POSITION!
