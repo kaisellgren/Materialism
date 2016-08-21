@@ -130,6 +130,7 @@ class Materialism {
             alpha = accumulator / interval
             render(alpha, shaderProgram)
 
+            timer.update()
             glfwPollEvents()
         }
     }
@@ -144,7 +145,13 @@ class Materialism {
         timer.updateUPS()
     }
 
+    var fpsTimeout = 0
     fun render(dt: Float, shaderProgram: ShaderProgram) {
+        fpsTimeout++
+        if (fpsTimeout > 30) {
+            fpsTimeout = 0
+            println("FPS: ${timer.getFPS()}")
+        }
         timer.updateFPS()
 
         glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)
