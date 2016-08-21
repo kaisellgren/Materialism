@@ -24,6 +24,7 @@ class Materialism {
     val terrain: ArrayList<Model> = arrayListOf()
     val noise = OpenSimplexNoise()
     val player = Player()
+    val dayNightCycle = DayNightCycle()
 
     init {
         try {
@@ -93,8 +94,7 @@ class Materialism {
         shaderProgram.createMaterialUniform("material")
         shaderProgram.setUniform("specularPower", 1f)
         shaderProgram.setUniform("texImage", 0)
-        shaderProgram.setUniform("ambientLight", Vector3f(0.2f, 0.2f, 0.2f))
-        shaderProgram.setUniform("material", Material(reflectance = 1f))
+        shaderProgram.setUniform("material", Material(reflectance = 0f))
 
         loop(shaderProgram)
 
@@ -138,6 +138,7 @@ class Materialism {
 
     fun update(dt: Float) {
         player.update(dt, mouse, window, terrain)
+        dayNightCycle.update(dt)
     }
 
     fun render(dt: Float, shaderProgram: ShaderProgram) {
@@ -145,22 +146,24 @@ class Materialism {
 
         shaderProgram.use()
 
+        shaderProgram.setUniform("ambientLight", dayNightCycle.currentColor)
+
         val viewMatrix = transformation.getViewMatrix(player)
 
         for (model in terrain) {
             val modelViewMatrix = transformation.getModelViewMatrix(model, viewMatrix)
 
-            val p = Vector3f(0f, 100f, 0f)
+            val p = Vector3f(20f, 50f, 20f)
             val pos = Vector4f(p, 1f)
             pos.mul(modelViewMatrix)
             p.x = pos.x
             p.y = pos.y
             p.z = pos.z
             shaderProgram.setUniform("pointLight", PointLight(
-                color = Vector3f(1f, 1f, 1f),
+                color = Vector3f(255/255f, 246/255f, 216/255f),
                 position = p,
                 att = Attenuation(constant = 1f, exponent = 0f, linear = 0f),
-                intensity = 1f
+                intensity = dayNightCycle.intensity
             ))
 
             shaderProgram.setUniform("modelViewMatrix", modelViewMatrix)
