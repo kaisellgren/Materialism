@@ -6,7 +6,7 @@ import org.lwjgl.opengl.GL11.glDrawArrays
 import org.lwjgl.opengl.GL15.GL_ARRAY_BUFFER
 import org.lwjgl.opengl.GL15.GL_STATIC_DRAW
 
-class Mesh(data: Array<Float>) {
+class Mesh(data: Array<Array<Float>>) {
     val vao: VertexArrayObject
     val vbo: VertexBufferObject
     val vertexCount: Int
@@ -15,10 +15,17 @@ class Mesh(data: Array<Float>) {
         vao = VertexArrayObject()
         vao.bind()
 
-        vertexCount = data.size / 3 // TODO: ?
+        var dataSize = 0
+        for (floatData in data) {
+            dataSize += floatData.size
+        }
 
-        val vertices = createFloatBuffer(data.size)
-        vertices.put(data.toFloatArray())
+        vertexCount = dataSize / 3 // TODO: ?
+
+        val vertices = createFloatBuffer(dataSize)
+        for (floats in data) {
+            vertices.put(floats.toFloatArray())
+        }
         vertices.flip()
 
         vbo = VertexBufferObject()

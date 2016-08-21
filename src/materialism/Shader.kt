@@ -12,11 +12,11 @@ class Shader(type: Int, source: CharSequence) {
 
     init {
         id = glCreateShader(type)
-        assertNoError()
+        assertNoGLError()
         glShaderSource(id, source)
-        assertNoError()
+        assertNoGLError()
         glCompileShader(id)
-        assertNoError()
+        assertNoGLError()
 
         checkStatus()
     }

@@ -12,27 +12,27 @@ class Texture(width: Int, height: Int, buffer: ByteBuffer) {
 
     init {
         id = glGenTextures()
-        assertNoError()
+        assertNoGLError()
         bind()
-        assertNoError()
+        assertNoGLError()
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
-        assertNoError()
+        assertNoGLError()
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
-        assertNoError()
+        assertNoGLError()
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT)
-        assertNoError()
+        assertNoGLError()
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT)
-        assertNoError()
+        assertNoGLError()
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 8)
-        assertNoError()
+        assertNoGLError()
 
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer)
-        assertNoError()
+        assertNoGLError()
     }
 
     fun bind() {
         glBindTexture(GL_TEXTURE_2D, id)
-        assertNoError()
+        assertNoGLError()
     }
 
     companion object {

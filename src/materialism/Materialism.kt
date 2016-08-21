@@ -21,7 +21,7 @@ class Materialism {
     val timer = Timer()
     val mouse = Mouse()
     val transformation = Transformation()
-    val terrain: ArrayList<Model> = arrayListOf()
+    val terrain: ArrayList<Chunk> = arrayListOf()
     val noise = OpenSimplexNoise()
     val player = Player()
     val dayNightCycle = DayNightCycle()
@@ -60,21 +60,37 @@ class Materialism {
         //font = Font(java.awt.Font(java.awt.Font.MONOSPACED, java.awt.Font.PLAIN, 16), true)
         dirt = Texture.fromPath("assets/dirt.png")
 
-        val mesh = Mesh(VertexBuilder.cube(0f, 0f, 0f, BASE_SIZE, BASE_SIZE, BASE_SIZE))
-
+        // 9000 = 50fps, 14000 = 30fps, 20000 = 25fps / 1 115 000
         var totalBlocks = 0
-        for (x in 0..40) {
-            for (y in 0..10) {
-                for (z in 0..40) {
-                    val value = noise.eval(x.toDouble() / 4, y.toDouble() / 1, z.toDouble() / 4)
-                    if (value > 0) {
-                        val model = Model(mesh)
-                        model.position.set(x.toFloat() * BASE_SIZE, y.toFloat() * BASE_SIZE, z.toFloat() * BASE_SIZE)
-                        terrain.add(model)
-
-                        totalBlocks++
+        for (chunkX in 0..4) {
+            for (chunkZ in 0..4) {
+                val chunk = Chunk()
+                for (modelIndex in 0..15) {
+                    val meshData: ArrayList<Array<Float>> = arrayListOf()
+                    val collisionModels: ArrayList<CollisionModel> = arrayListOf()
+                    for (x in 0..15) {
+                        for (z in 0..15) {
+                            for (y in 0..15) {
+                                val value = noise.eval(x.toDouble() / 8, y.toDouble() / 4, z.toDouble() / 8)
+                                if (value > 0) {
+                                    val x1 = x.toFloat() * BASE_SIZE
+                                    val y1 = y.toFloat() * BASE_SIZE
+                                    val z1 = z.toFloat() * BASE_SIZE
+                                    meshData.add(VertexBuilder.cube(x1, y1, z1, BASE_SIZE, BASE_SIZE, BASE_SIZE))
+                                    collisionModels.add(CubeCollision(x1, y1, z1, BASE_SIZE, BASE_SIZE, BASE_SIZE))
+                                    totalBlocks++
+                                }
+                            }
+                        }
                     }
+                    val meshSize = 16f * BASE_SIZE
+                    val mesh = Mesh(meshData.toTypedArray())
+                    val model = Model(mesh, collisionModels.toTypedArray())
+                    model.position.set(chunkX.toFloat() * meshSize, modelIndex.toFloat() * meshSize, chunkZ.toFloat() * meshSize)
+                    model.size.set(meshSize, meshSize, meshSize)
+                    chunk.models.add(model)
                 }
+                terrain.add(chunk)
             }
         }
         println("Total blocks: $totalBlocks")
@@ -116,7 +132,9 @@ class Materialism {
 
         loop(shaderProgram)
 
-        mesh.delete()
+        for (c in terrain) {
+            c.delete()
+        }
         voxelVS.delete()
         voxelFS.delete()
         shaderProgram.delete()
@@ -164,7 +182,7 @@ class Materialism {
     var fpsTimeout = 0
     fun render(dt: Float, shaderProgram: ShaderProgram) {
         fpsTimeout++
-        if (fpsTimeout > 30) {
+        if (fpsTimeout > 25) {
             fpsTimeout = 0
             println("FPS: ${timer.getFPS()}, UPS: ${timer.getUPS()}")
         }
@@ -180,29 +198,31 @@ class Materialism {
 
         val viewMatrix = transformation.getViewMatrix(player)
 
-        for (model in terrain) {
-            val modelViewMatrix = transformation.getModelViewMatrix(model, viewMatrix)
+        for (chunk in terrain) {
+            for (model in chunk.models) {
+                val modelViewMatrix = transformation.getModelViewMatrix(model, viewMatrix)
 
-            val pos = tmpPointLightPosM.set(pointLightPos.x, pointLightPos.y, pointLightPos.z, 1f)
-            pos.mul(modelViewMatrix)
-            tmpPointLightPos.x = pos.x
-            tmpPointLightPos.y = pos.y
-            tmpPointLightPos.z = pos.z
+                val pos = tmpPointLightPosM.set(pointLightPos.x, pointLightPos.y, pointLightPos.z, 1f)
+                pos.mul(modelViewMatrix)
+                tmpPointLightPos.x = pos.x
+                tmpPointLightPos.y = pos.y
+                tmpPointLightPos.z = pos.z
 
-            pointLight.intensity = dayNightCycle.intensity
-            pointLight.position = tmpPointLightPos
+                pointLight.intensity = dayNightCycle.intensity
+                pointLight.position = tmpPointLightPos
 
-            shaderProgram.setUniform("pointLight", pointLight)
-            shaderProgram.setUniform("modelViewMatrix", modelViewMatrix)
+                shaderProgram.setUniform("pointLight", pointLight)
+                shaderProgram.setUniform("modelViewMatrix", modelViewMatrix)
 
-            model.mesh.render()
+                model.mesh.render()
+            }
         }
 
         //font?.drawText(a, "testing this thing")
 
         glfwSwapBuffers(window)
 
-        logError()
+        logGLError()
     }
 }
 

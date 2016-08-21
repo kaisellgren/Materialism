@@ -24,12 +24,12 @@ class ShaderProgram {
 
     fun attachShader(shader: Shader) {
         glAttachShader(id, shader.id)
-        assertNoError()
+        assertNoGLError()
     }
 
     fun bindFragmentDataLocation(number: Int, name: CharSequence) {
         glBindFragDataLocation(id, number, name)
-        assertNoError()
+        assertNoGLError()
     }
 
     fun link() {
@@ -47,37 +47,37 @@ class ShaderProgram {
 
     fun enableVertexAttribute(location: Int) {
         glEnableVertexAttribArray(location)
-        assertNoError()
+        assertNoGLError()
     }
 
     fun disableVertexAttribute(location: Int) {
         glDisableVertexAttribArray(location)
-        assertNoError()
+        assertNoGLError()
     }
 
     fun pointVertexAttribute(location: Int, size: Int, stride: Int, offset: Long) {
         glVertexAttribPointer(location, size, GL_FLOAT, false, stride, offset)
-        assertNoError()
+        assertNoGLError()
     }
 
     fun setUniform(name: String, value: Vector3f) {
         glUniform3f(uniforms.get(name)!!, value.x, value.y, value.z)
-        assertNoError()
+        assertNoGLError()
     }
 
     fun setUniform(name: String, value: Float) {
         glUniform1f(uniforms.get(name)!!, value)
-        assertNoError()
+        assertNoGLError()
     }
 
     fun setUniform(name: String, value: Matrix4f) {
         glUniformMatrix4fv(uniforms.get(name)!!, false, value.get(createFloatBuffer(16)))
-        assertNoError()
+        assertNoGLError()
     }
 
     fun setUniform(name: String, value: Int) {
         glUniform1i(uniforms.get(name)!!, value)
-        assertNoError()
+        assertNoGLError()
     }
 
     fun createUniform(name: String) {
@@ -108,12 +108,12 @@ class ShaderProgram {
         setUniform(name + ".att.constant", pointLight.att.constant)
         setUniform(name + ".att.linear", pointLight.att.linear)
         setUniform(name + ".att.exponent", pointLight.att.exponent)
-        assertNoError()
+        assertNoGLError()
     }
 
     fun setUniform(name: String, material: Material) {
         setUniform(name + ".reflectance", material.reflectance)
-        assertNoError()
+        assertNoGLError()
     }
 
     fun use() {

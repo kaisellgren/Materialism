@@ -16,7 +16,7 @@ class Player {
     val mouseSpeed = 0.5f
     val weight = 0.5f
 
-    fun update(dt: Float, mouse: Mouse, window: Long, terrain: List<Model>) {
+    fun update(dt: Float, mouse: Mouse, window: Long, terrain: List<Chunk>) {
         updateRotation(mouse.displayCoord.x * mouseSpeed, mouse.displayCoord.y * mouseSpeed)
         updateMovement(dt, window, terrain)
         updateGravity(dt, terrain)
@@ -27,7 +27,7 @@ class Player {
         rotation.y = (rotation.y + y) //% 180
     }
 
-    fun updateMovement(dt: Float, window: Long, terrain: List<Model>) {
+    fun updateMovement(dt: Float, window: Long, terrain: List<Chunk>) {
         if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
             position.x += sin(toRadians(rotation.y.toDouble())).toFloat() * movementSpeed * dt
             position.z -= cos(toRadians(rotation.y.toDouble())).toFloat() * movementSpeed * dt
@@ -56,12 +56,12 @@ class Player {
         }
     }
 
-    fun updateGravity(dt: Float, terrain: List<Model>) {
+    fun updateGravity(dt: Float, terrain: List<Chunk>) {
         val terrainBelow = getBlockBelow(terrain)
 
         if (terrainBelow != null) {
             velocity.y = 0f
-            position.y = terrainBelow.position.y + terrainBelow.size.y
+            position.y = terrainBelow
         } else {
             velocity.y -= pow(weight.toDouble(), velocity.y.toDouble()).toFloat() * dt
             if (velocity.y < -2f) {
@@ -72,29 +72,37 @@ class Player {
         position.y += velocity.y
     }
 
-    fun getBlockBelow(terrain: List<Model>): Model? {
-        return terrain.find { obj ->
-            fun isWithin(size: Float, size2: Float, position: Float, position2: Float): Boolean {
-                if (size < size2) {
-                    val isLeftWithin = position >= position2 && position <= position2 + size2
-                    val isRightWithin = position + size >= position2 && position + size <= position2 + size2
-                    return isLeftWithin || isRightWithin
-                } else {
-                    val isLeftWithin = position2 >= position && position2 <= position + size
-                    val isRightWithin = position2 + size2 >= position && position2 + size2 <= position + size
-                    return isLeftWithin || isRightWithin
-                }
-            }
+    fun getBlockBelow(terrain: List<Chunk>): Float? {
+        for (chunk in terrain) {
+            for (model in chunk.models) {
+                for (collisionModel in model.collisionModels) {
+                    if (collisionModel is CubeCollision) {
+                        fun isWithin(size: Float, size2: Float, position: Float, position2: Float): Boolean {
+                            if (size < size2) {
+                                val isLeftWithin = position >= position2 && position <= position2 + size2
+                                val isRightWithin = position + size >= position2 && position + size <= position2 + size2
+                                return isLeftWithin || isRightWithin
+                            } else {
+                                val isLeftWithin = position2 >= position && position2 <= position + size
+                                val isRightWithin = position2 + size2 >= position && position2 + size2 <= position + size
+                                return isLeftWithin || isRightWithin
+                            }
+                        }
 
-            if (isWithin(obj.size.x, size.x, obj.position.x, position.x)) {
-                if (isWithin(obj.size.z, size.z, obj.position.z, position.z)) {
-                    position.y + velocity.y <= obj.position.y + obj.size.y && position.y + velocity.y >= obj.position.y
-                } else {
-                    false
+                        if (isWithin(collisionModel.width, size.x, collisionModel.x + model.position.x, position.x)) {
+                            if (isWithin(collisionModel.length, size.z, collisionModel.z + model.position.z, position.z)) {
+                                if (position.y + velocity.y <= collisionModel.y + model.position.y + collisionModel.height && position.y + velocity.y >= collisionModel.y + model.position.y) {
+                                    return collisionModel.y + model.position.y + collisionModel.height
+                                }
+                            }
+                        }
+                    } else {
+                        logError("Unsupported collision model: $collisionModel")
+                    }
                 }
-            } else {
-                false
             }
         }
+
+        return null
     }
 }

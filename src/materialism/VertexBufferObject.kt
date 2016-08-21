@@ -9,36 +9,36 @@ class VertexBufferObject {
 
     init {
         id = glGenBuffers()
-        assertNoError()
+        assertNoGLError()
     }
 
     fun bind(target: Int) {
         glBindBuffer(target, id)
-        assertNoError()
+        assertNoGLError()
     }
 
     fun uploadData(target: Int, data: FloatBuffer, usage: Int) {
         glBufferData(target, data, usage)
-        assertNoError()
+        assertNoGLError()
     }
 
     fun uploadData(target: Int, size: Long, usage: Int) {
         glBufferData(target, size, usage)
-        assertNoError()
+        assertNoGLError()
     }
 
     fun uploadSubData(target: Int, offset: Long, data: FloatBuffer) {
         glBufferSubData(target, offset, data)
-        assertNoError()
+        assertNoGLError()
     }
 
     fun uploadData(target: Int, data: IntBuffer, usage: Int) {
         glBufferData(target, data, usage)
-        assertNoError()
+        assertNoGLError()
     }
 
     fun delete() {
         glDeleteBuffers(id)
-        assertNoError()
+        assertNoGLError()
     }
 }

@@ -7,16 +7,16 @@ class VertexArrayObject {
 
     init {
         id = glGenVertexArrays()
-        assertNoError()
+        assertNoGLError()
     }
 
     fun bind() {
         glBindVertexArray(id)
-        assertNoError()
+        assertNoGLError()
     }
 
     fun delete() {
         glDeleteVertexArrays(id)
-        assertNoError()
+        assertNoGLError()
     }
 }
