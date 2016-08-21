@@ -5,11 +5,10 @@ import org.lwjgl.opengl.GL11.*
 import org.lwjgl.opengl.GL12.GL_TEXTURE_MAX_LEVEL
 import org.lwjgl.stb.STBImage.stbi_failure_reason
 import org.lwjgl.stb.STBImage.stbi_load
+import java.nio.ByteBuffer
 
-class Texture(val path: String) {
+class Texture(width: Int, height: Int, buffer: ByteBuffer) {
     val id: Int
-    val width: Int
-    val height: Int
 
     init {
         id = glGenTextures()
@@ -27,20 +26,23 @@ class Texture(val path: String) {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 8)
         assertNoError()
 
-        val w = createIntBuffer(1)
-        val h = createIntBuffer(1)
-        val comp = createIntBuffer(1)
-
-        val image = stbi_load(path, w, h, comp, 4) ?: throw RuntimeException("Failed to load a texture file: $path (${stbi_failure_reason()})")
-        width = w.get()
-        height = h.get()
-
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image)
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer)
         assertNoError()
     }
 
     fun bind() {
         glBindTexture(GL_TEXTURE_2D, id)
         assertNoError()
+    }
+
+    companion object {
+        fun fromPath(path: String): Texture {
+            val w = createIntBuffer(1)
+            val h = createIntBuffer(1)
+            val comp = createIntBuffer(1)
+
+            val image = stbi_load(path, w, h, comp, 4) ?: throw RuntimeException("Failed to load a texture file: $path (${stbi_failure_reason()})")
+            return Texture(w.get(), h.get(), image)
+        }
     }
 }

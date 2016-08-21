@@ -25,6 +25,8 @@ class Materialism {
     val noise = OpenSimplexNoise()
     val player = Player()
     val dayNightCycle = DayNightCycle()
+    //var font: Font? = null
+    var dirt: Texture? = null
 
     init {
         try {
@@ -43,11 +45,11 @@ class Materialism {
         mouse.initialize(window)
 
         glActiveTexture(GL_TEXTURE0)
-        val dirt = Texture("assets/dirt.png")
+        //font = Font(java.awt.Font(java.awt.Font.MONOSPACED, java.awt.Font.PLAIN, 16), true)
+        dirt = Texture.fromPath("assets/dirt.png")
 
         val mesh = Mesh(VertexBuilder.cube(0f, 0f, 0f, BASE_SIZE, BASE_SIZE, BASE_SIZE))
 
-        val featureSize = 0.01
         for (x in 0..20) {
             for (y in 0..10) {
                 for (z in 0..20) {
@@ -139,10 +141,15 @@ class Materialism {
     fun update(dt: Float) {
         player.update(dt, mouse, window, terrain)
         dayNightCycle.update(dt)
+        timer.updateUPS()
     }
 
     fun render(dt: Float, shaderProgram: ShaderProgram) {
+        timer.updateFPS()
+
         glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)
+
+        dirt?.bind()
 
         shaderProgram.use()
 
@@ -170,6 +177,8 @@ class Materialism {
 
             model.mesh.render()
         }
+
+        //font?.drawText(a, "testing this thing")
 
         glfwSwapBuffers(window)
 
